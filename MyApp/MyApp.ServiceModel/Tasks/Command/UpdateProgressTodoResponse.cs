@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace MyApp.ServiceModel.Tasks.Command;
 
-namespace MyApp.ServiceModel.Tasks.Command
+public class UpdateProgressTodoResponse
 {
-    public class UpdateProgressTodoResponse
-    {
-        public int Id { get; set; }
-        public string Title { get; set; }  
-        public byte Progress { get; set; }
-    }
+    public int Id { get; set; }
+    public string Title { get; set; }  
+    public byte Progress { get; set; }
 }

@@ -3,47 +3,54 @@ using MyApp.ServiceModel.Tasks.Query;
 using ServiceStack.OrmLite;
 using MyApp.ServiceModel.Types;
 using MyApp.ServiceModel.Tasks.Command;
-using System.Collections.Generic;
 using System;
-using ServiceStack.Web;
-using System.Collections;
 
 namespace MyApp.ServiceInterface;
 
 public class TodoService : Service
 {
-    public Todo Get(GetTodoQuery query)
+    public GetTodoResponse Get(GetTodoQuery query)
     {
         // Get todo by Id
-        return Db.SingleById<Todo>(query.Id);
+        return new GetTodoResponse { 
+            todo = Db.SingleById<Todo>(query.Id) 
+        };
     }
 
-    public List<Todo> Get(GetAllTodoQuery query)
+    public GetAllTodoResponse Get(GetAllTodoQuery query)
     {
         //Get all todos
-        List<Todo> todos = Db.Select<Todo>();
-        return todos;
+        return new GetAllTodoResponse { 
+            Results = Db.Select<Todo>()
+        };
     }
 
-    public List<Todo> Get(GetTodayTodoQuery query)
+    public GetTodayTodoResponse Get(GetTodayTodoQuery query)
     {
         //Get today todos
-        List<Todo> todos = Db.Select<Todo>(x => x.DateAndTimeOfExpiry == DateTime.Today);
-        return todos;
+        return new GetTodayTodoResponse{
+            todos = Db.Select<Todo>(x => x.DateAndTimeOfExpiry == DateTime.Today)
+        };
     }
 
-    //public List<Todo> Get(GetTomorrowTodoQuery query)
+    //Commented due to servicestack free licence
+    //The free-quota limit on '10 ServiceStack Operations' has been reached
+    //public GetTomorrowTodoResponse Get(GetTomorrowTodoQuery query)
     //{
     //    //Get tomorrow todos
-    //    List<Todo> todos = Db.Select<Todo>(x => x.DateAndTimeOfExpiry == DateTime.Today.AddDays(1));
-    //    return todos;
+    //    return new GetTomorrowTodoResponse
+    //    {
+    //        todos = Db.Select<Todo>(x => x.DateAndTimeOfExpiry == DateTime.Today.AddDays(1))
+    //    };
     //}
 
-    public List<Todo> Get(GetWeekTodoQuery query)
+    public GetWeekTodoResponse Get(GetWeekTodoQuery query)
     {
         //Get current week todos
-        List<Todo> todos = Db.Select<Todo>(x => x.DateAndTimeOfExpiry >= DateTime.Today && x.DateAndTimeOfExpiry <= DateTime.Today.AddDays(7));
-        return todos;
+        return new GetWeekTodoResponse
+        {
+            todos = Db.Select<Todo>(x => x.DateAndTimeOfExpiry >= DateTime.Today && x.DateAndTimeOfExpiry <= DateTime.Today.AddDays(7))
+        };
     }
 
     public CreateTodoResponse Post(CreateTodoCommand command)

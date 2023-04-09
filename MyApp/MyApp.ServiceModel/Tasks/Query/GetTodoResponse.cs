@@ -4,5 +4,5 @@ namespace MyApp.ServiceModel.Tasks.Query;
 
 public class GetTodoResponse
 {
-    public Todo Task { get; set;}
+    public Todo todo { get; set;}
 }

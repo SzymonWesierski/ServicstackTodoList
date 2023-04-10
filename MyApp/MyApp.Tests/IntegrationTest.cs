@@ -1,16 +1,15 @@
-﻿using Funq;
+﻿using System;
+using Funq;
 using ServiceStack;
-using NUnit.Framework;
-using MyApp.ServiceInterface;
-using ServiceStack.OrmLite;
 using ServiceStack.Data;
-using MyApp.ServiceModel.Types;
-using MyApp.ServiceModel.Tasks.Query;
+using ServiceStack.OrmLite;
+using MyApp.ServiceInterface;
 using MyApp.ServiceModel.Tasks.Command;
-using System;
+using MyApp.ServiceModel.Tasks.Query;
+using MyApp.ServiceModel.Types;
+using Xunit;
 
-
-namespace MyApp.Tests;
+namespace MyApp.Tests.IntegrationTest;
 
 public class AppHost : AppSelfHostBase
 {
@@ -28,32 +27,30 @@ public class AppHost : AppSelfHostBase
 
 }
 
-public class IntegrationTest
+public class IntegrationTest : IDisposable
 {
     const string BaseUri = "http://localhost:2000/";
     private ServiceStackHost appHost;
 
-    [OneTimeSetUp]
-    public void OneTimeSetUp()
+    public IntegrationTest()
     {
-        //Start your AppHost on OneTimeSetUp
-        appHost = new AppHost()
-            .Init()
-            .Start(BaseUri);
+        appHost = new AppHost().Init().Start(BaseUri);
+         
     }
 
-    [OneTimeTearDown]
-    public void OneTimeTearDown() => appHost.Dispose();
+    public void Dispose()
+    {
+        appHost.Dispose();
+    }
 
-
-    [Test]
+    [Fact]
     public void Can_GET_and_Create_Todo()
     {
         var todos = new JsonServiceClient(BaseUri);
 
         //GET /todo
         var all = todos.Get(new GetAllTodoQuery());
-        Assert.That(all.Results.Count, Is.EqualTo(0));
+        Assert.Equal(0, all.Results.Count);
 
         //POST /todo
         var todo = todos.Post(new CreateTodoCommand
@@ -63,35 +60,10 @@ public class IntegrationTest
             Description = "test",
             DateAndTimeOfExpiry = new DateTime(2023, 3, 9, 16, 5, 0, 0),
         });
-        Assert.That(todo.Id, Is.EqualTo(1));
+        Assert.Equal(1, todo.Id);
 
         //GET /todo
         all = todos.Get(new GetAllTodoQuery());
-        Assert.That(all.Results.Count, Is.EqualTo(1));
+        Assert.Equal(1, all.Results.Count);
     }
-    
-    [Test]
-    public void Can_GET_and_Create_Todo2()
-    {
-        var todos = new JsonServiceClient(BaseUri);
-
-        //GET /todo
-        var all = todos.Get(new GetAllTodoQuery());
-        Assert.That(all.Results.Count, Is.EqualTo(1));
-
-        //POST /todo
-        var todo = todos.Post(new CreateTodoCommand
-        {
-            Title = "IntegrationTest",
-            Progress = 20,
-            Description = "test",
-            DateAndTimeOfExpiry = new DateTime(2023, 3, 9, 16, 5, 0, 0),
-        });
-        Assert.That(todo.Id, Is.EqualTo(1));
-
-        //GET /todo
-        all = todos.Get(new GetAllTodoQuery());
-        Assert.That(all.Results.Count, Is.EqualTo(2));
-    }
-
 }

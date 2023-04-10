@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using ServiceStack;
 using ServiceStack.Testing;
 using MyApp.ServiceInterface;
@@ -8,32 +8,37 @@ using ServiceStack.OrmLite;
 using System;
 using MyApp.ServiceModel.Tasks.Query;
 
-namespace MyApp.Tests;
-public class UnitTest
+namespace MyApp.Tests.UnitTest;
+
+public class UnitTest : IDisposable
 {
     private ServiceStackHost appHost;
 
-    [OneTimeSetUp]
-    public void OneTimeSetUp()
+    public UnitTest()
     {
-        appHost = new BasicAppHost().Init();
-        var container = appHost.Container;
-
-        container.Register<IDbConnectionFactory>(
-            new OrmLiteConnectionFactory("Server=localhost;User Id=postgres;Password=admin;Database=Test;Pooling=true;MinPoolSize=0;MaxPoolSize=200", PostgreSqlDialect.Provider));
-
-        container.RegisterAutoWired<TodoService>();
-
-        using (var db = container.Resolve<IDbConnectionFactory>().Open())
+        if (appHost == null)
         {
-            db.DropAndCreateTable<Todo>();
+            appHost = new BasicAppHost().Init();
+            var container = appHost.Container;
+
+            container.Register<IDbConnectionFactory>(
+                new OrmLiteConnectionFactory("Server=localhost;User Id=postgres;Password=admin;Database=Test;Pooling=true;MinPoolSize=0;MaxPoolSize=200", PostgreSqlDialect.Provider));
+
+            container.RegisterAutoWired<TodoService>();
+
+            using (var db = container.Resolve<IDbConnectionFactory>().Open())
+            {
+                db.DropAndCreateTable<Todo>();
+            }
         }
     }
 
-    [OneTimeTearDown]
-    public void OneTimeTearDown() => appHost.Dispose();
+    public void Dispose()
+    {
+        appHost.Dispose();
+    }
 
-    [Test]
+    [Fact]
     public void GetTodo_ReturnsTodo()
     {
         var service = appHost.Container.Resolve<TodoService>();
@@ -46,11 +51,11 @@ public class UnitTest
         var response = service.Get(query);
 
         //Assert
-        Assert.That(response.todo.Id, Is.EqualTo(todo.Id));
-        Assert.That(response.todo.Title, Is.EqualTo(todo.Title));
+        Assert.Equal(todo.Id, response.todo.Id);
+        Assert.Equal(todo.Title, response.todo.Title);
     }
 
-    [Test]
+    [Fact]
     public void GetAllTodo_ReturnsAllTodos()
     {
         var service = appHost.Container.Resolve<TodoService>();
@@ -64,12 +69,12 @@ public class UnitTest
         var response = service.Get(query);
 
         //Assert
-        Assert.That(response.Results, Has.Count.EqualTo(2));
-        Assert.That(response.Results[0].Id, Is.EqualTo(todo1.Id));
-        Assert.That(response.Results[1].Id, Is.EqualTo(todo2.Id));
+        Assert.Equal(2, response.Results.Count);
+        Assert.Equal(todo1.Id, response.Results[0].Id);
+        Assert.Equal(todo2.Id, response.Results[1].Id);
     }
 
-    [Test]
+    [Fact]
     public void GetTodayTodo_ReturnsTodayTodos()
     {
         var service = appHost.Container.Resolve<TodoService>();
@@ -83,25 +88,25 @@ public class UnitTest
         var response = service.Get(query);
 
         //Assert
-        Assert.That(response.todos, Has.Count.EqualTo(1));
-        Assert.That(response.todos[0].Id, Is.EqualTo(todo1.Id));
+        Assert.Equal(1, response.todos.Count);
+        Assert.Equal(todo1.Id, response.todos[0].Id);
     }
 
-    [Test]
-    public void GetTomorrowTodo_ReturnsTomorrowTodos()
-    {
-        //var service = appHost.Container.Resolve<TodoService>();
-        ////Arrange
-        //var todo1 = new Todo { Title = "Todo 1", DateAndTimeOfExpiry = DateTime.Today.AddDays(1) };
-        //var todo2 = new Todo { Title = "Todo 2", DateAndTimeOfExpiry = DateTime.Today.AddDays(2) };
-        //service.Db.SaveAll(new[] { todo1, todo2 });
-        //var query = new GetTomorrowTodoQuery();
+    //[Fact]
+    //public void GetTomorrowTodo_ReturnsTomorrowTodos()
+    //{
+    //    var service = appHost.Container.Resolve<TodoService>();
+    //    //Arrange
+    //    var todo1 = new Todo { Title = "Todo 1", DateAndTimeOfExpiry = DateTime.Today.AddDays(1) };
+    //    var todo2 = new Todo { Title = "Todo 2", DateAndTimeOfExpiry = DateTime.Today.AddDays(2) };
+    //    service.Db.SaveAll(new[] { todo1, todo2 });
+    //    var query = new GetTomorrowTodoQuery();
 
-        ////Act
-        //var response = service.Get(query);
+    //    //Act
+    //    var response = service.Get(query);
 
-        ////Assert
-        //Assert.That(response.todos, Has.Count.EqualTo(1));
-        //Assert.That(response.todos[0].Id, Is.EqualTo(todo1.Id));
-    }
+    //    //Assert
+    //    Assert.Equal(1, response.todos.Count);
+    //    Assert.Equal(todo1.Id, response.todos[0].Id);
+    //}
 }

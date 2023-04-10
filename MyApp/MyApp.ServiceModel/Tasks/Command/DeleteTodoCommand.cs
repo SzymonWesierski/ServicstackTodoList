@@ -2,8 +2,8 @@
 
 namespace MyApp.ServiceModel.Tasks.Command;
 
-[Route("/todo", "DELETE")]
-public class DeleteTodoCommand
+[Route("/todo{Id}", "DELETE")]
+public class DeleteTodoCommand : IReturn<DeleteTodoResponse>
 {
     public int Id { get; set; }
 }

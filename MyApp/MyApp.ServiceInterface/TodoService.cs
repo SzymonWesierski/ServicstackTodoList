@@ -9,6 +9,7 @@ namespace MyApp.ServiceInterface;
 
 public class TodoService : Service
 {
+
     public GetTodoResponse Get(GetTodoQuery query)
     {
         // Get todo by Id

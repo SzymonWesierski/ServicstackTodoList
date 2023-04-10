@@ -12,13 +12,15 @@ namespace MyApp;
 public class ConfigureDb : IHostingStartup
 {
     public void Configure(IWebHostBuilder builder) => builder
-        .ConfigureServices((context, services) => {
+        .ConfigureServices((context, services) =>
+        {
             services.AddSingleton<IDbConnectionFactory>(new OrmLiteConnectionFactory(
                 context.Configuration.GetConnectionString("DefaultConnection")
                 ?? "Server=localhost;User Id=postgres;Password=admin;Database=Todo;Pooling=true;MinPoolSize=0;MaxPoolSize=200",
                 PostgreSqlDialect.Provider));
         })
-        .ConfigureAppHost(appHost => {
+        .ConfigureAppHost(appHost =>
+        {
             // Enable built-in Database Admin UI at /admin-ui/database
             // appHost.Plugins.Add(new AdminDatabaseFeature());
         });

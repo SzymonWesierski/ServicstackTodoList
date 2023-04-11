@@ -92,21 +92,21 @@ public class UnitTest : IDisposable
         Assert.Equal(todo1.Id, response.todos[0].Id);
     }
 
-    //[Fact]
-    //public void GetTomorrowTodo_ReturnsTomorrowTodos()
-    //{
-    //    var service = appHost.Container.Resolve<TodoService>();
-    //    //Arrange
-    //    var todo1 = new Todo { Title = "Todo 1", DateAndTimeOfExpiry = DateTime.Today.AddDays(1) };
-    //    var todo2 = new Todo { Title = "Todo 2", DateAndTimeOfExpiry = DateTime.Today.AddDays(2) };
-    //    service.Db.SaveAll(new[] { todo1, todo2 });
-    //    var query = new GetTomorrowTodoQuery();
+    [Fact]
+    public void GetTomorrowTodo_ReturnsTomorrowTodos()
+    {
+        var service = appHost.Container.Resolve<TodoService>();
+        //Arrange
+        var todo1 = new Todo { Title = "Todo 1", DateAndTimeOfExpiry = DateTime.Today.AddDays(1) };
+        var todo2 = new Todo { Title = "Todo 2", DateAndTimeOfExpiry = DateTime.Today.AddDays(2) };
+        service.Db.SaveAll(new[] { todo1, todo2 });
+        var query = new GetTomorrowTodoQuery();
 
-    //    //Act
-    //    var response = service.Get(query);
+        //Act
+        var response = service.Get(query);
 
-    //    //Assert
-    //    Assert.Equal(1, response.todos.Count);
-    //    Assert.Equal(todo1.Id, response.todos[0].Id);
-    //}
+        //Assert
+        Assert.Equal(1, response.todos.Count);
+        Assert.Equal(todo1.Id, response.todos[0].Id);
+    }
 }

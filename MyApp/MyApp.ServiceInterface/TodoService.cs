@@ -34,16 +34,14 @@ public class TodoService : Service
         };
     }
 
-    //Commented due to servicestack free licence
-    //The free-quota limit on '10 ServiceStack Operations' has been reached
-    //public GetTomorrowTodoResponse Get(GetTomorrowTodoQuery query)
-    //{
-    //    //Get tomorrow todos
-    //    return new GetTomorrowTodoResponse
-    //    {
-    //        todos = Db.Select<Todo>(x => x.DateAndTimeOfExpiry == DateTime.Today.AddDays(1))
-    //    };
-    //}
+    public GetTomorrowTodoResponse Get(GetTomorrowTodoQuery query)
+    {
+        //Get tomorrow todos
+        return new GetTomorrowTodoResponse
+        {
+            todos = Db.Select<Todo>(x => x.DateAndTimeOfExpiry == DateTime.Today.AddDays(1))
+        };
+    }
 
     public GetWeekTodoResponse Get(GetWeekTodoQuery query)
     {
@@ -57,7 +55,6 @@ public class TodoService : Service
     public CreateTodoResponse Post(CreateTodoCommand command)
     {
         //Create todo
-
         var todo = new Todo
         {
             Title = command.Title,
@@ -66,11 +63,11 @@ public class TodoService : Service
             DateAndTimeOfExpiry = command.DateAndTimeOfExpiry,
         };
 
-        var todoId = Db.Insert(todo);
+        var autoId = Db.Insert(todo);
 
         return new CreateTodoResponse
         {
-            Id = (int)todoId,
+            Id = (int)autoId,
         };
     }
 
@@ -96,18 +93,9 @@ public class TodoService : Service
     public UpdateProgressTodoResponse Put(UpdateProgressTodoCommand command)
     {
         //Update Progress todo
-
-        var todo = Db.SingleById<Todo>(command.Id);
-
-        Db.Update(new Todo
-        {
-            Id = command.Id,
-            Progress = command.Progress >= 100 ? 100 : command.Progress,
-            Title = todo.Title,
-            Description = todo.Description,
-            DateAndTimeOfExpiry = todo.DateAndTimeOfExpiry,
-            IsCompleted = command.Progress >= 100 ? true : false,
-        });
+        Db.UpdateOnly(() => new Todo { Progress = command.Progress >= 100 ? 100 : command.Progress,
+            IsCompleted = command.Progress >= 100},
+            where: x => x.Id == command.Id);
 
         return new UpdateProgressTodoResponse
         {
